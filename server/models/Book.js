@@ -28,15 +28,16 @@ const bookSchema= new mongoose.Schema({
         required:true
     },
     category:{
-        type:Category,
+        type:String,
+        enum: Object.values(Category),
         required:true
     },
     notes:{
         type:String,
         required:false
     },
-    image:{
-        type:Image,
+    imageUrl:{
+        type:String,
         required:false
     }
 })
