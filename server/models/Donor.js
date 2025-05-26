@@ -2,7 +2,8 @@ const mongoose= require('mongoose')
 const donorSchema= new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required:true,
+        default: 'בעילום שם'
     },
     email:{
         type:String,

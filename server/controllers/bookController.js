@@ -106,6 +106,17 @@ const getBookBySubject = async (req, res) => {
     }
     res.json(book)
 }
+const getBookByCode = async (req, res) => {
+    const { code } = req.query
+    if (!code) {
+        return res.status(400).json({ message: 'Code is required' })
+    }
+    const book = await Book.find({ code }).lean()
+    if (!book) {
+        return res.status(400).json({ message: 'Book not found' })
+    }
+    res.json(book)
+}
 
 const getBookById = async (req, res) => {
     const { id } = req.params
@@ -121,6 +132,7 @@ module.exports = {
     createNewBook,
     getBookById,
     getBookByName,
+    getBookByCode,
     getBookByAuthor,
     getBookByCategory,
     getBookBySubject,

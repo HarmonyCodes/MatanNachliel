@@ -48,7 +48,7 @@ const updateMessage = async (req, res) => {
 }
 
 const deleteMessage = async (req, res) => {
-    const { id } = req.body
+    const { id } = req.params
     if (!id) {
         return res.status(400).json({ message: 'ID required' })
     }
