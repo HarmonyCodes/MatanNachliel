@@ -12,7 +12,7 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.static("public"))
 app.use("/Books", require("./routes/Books"))
-app.use("/Requireds", require("./routes/Requireds"))
+app.use("/BooksToBuy", require("./routes/BooksToBuy"))
 app.use("/Donors", require("./routes/Donors"))
 app.use("/Reports", require("./routes/Reports"))
 

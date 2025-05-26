@@ -1,8 +1,9 @@
 const mongoose= require('mongoose')
-const requiredSchema= new mongoose.Schema({
+const bookToBuySchema= new mongoose.Schema({
     name:{
         type:String,
-        required:true
+        required:true,
+        default:"בעילום שם"
     },
     price:{
         type:Number,
@@ -13,4 +14,4 @@ const requiredSchema= new mongoose.Schema({
         required:true
     }
 })
-const Required = mongoose.model('Required', requiredSchema)
+const BookToBuy = mongoose.model('BookToBuy', bookToBuySchema)
