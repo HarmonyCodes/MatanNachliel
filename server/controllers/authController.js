@@ -1,8 +1,9 @@
 const User = require("../models/User")
 const jwt = require("jsonwebtoken")
 const bcrypt = require('bcrypt')
+
 const register = async (req, res) => {
-    const { name, password } = req.body
+    const { name, password, roles } = req.body
     if (!name || !password) {
         return res.status(400).json({ message: 'name, password are required' })
     }
@@ -13,14 +14,15 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
     res.send(hashedPassword);
 
-    const userObject = { name, password: hashedPassword}
+    const userObject = { name, password: hashedPassword, roles }
     const user = await User.create(userObject)
-    if (user) { // Created
+    if (user) { 
         return res.status(201).json({
             message: `New user ${user.name} created`,
             user
         })
-    } else {
+    }
+    else {
         return res.status(400).json({ message: 'Invalid user received' })
     }
 }
@@ -36,10 +38,10 @@ const login = async (req, res) => {
     const foundUser = await User.findOne({ name }).lean()
     const match = await bcrypt.compare(password, foundUser.password)
 
-    if (!foundUser || match) {
+    if (!foundUser || !match) {
         return res.status(401).json({ message: 'Unauthorized' })
     }
-    const userInfo= {_id:foundUser._id,name:foundUser.name}
+    const userInfo= {_id:foundUser._id,name:foundUser.name,  roles: foundUser.roles}
     const accessToken = jwt.sign(userInfo,process.env.ACCESS_TOKEN_SECRET)
     res.json({accessToken:accessToken})
     res.send("Logged In")

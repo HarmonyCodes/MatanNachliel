@@ -1,6 +1,6 @@
 const Book = require("../models/Book")
 const createNewBook = async (req, res) => {
-    const { name, author, subject, category, notes, image, donor } = req.body
+    const { name, author, code, subject, category, notes, image, donor } = req.body
     if (!name) {
         return res.status(400).json({ message: 'name is required' })
     }
@@ -13,8 +13,11 @@ const createNewBook = async (req, res) => {
     if (!category) {
         return res.status(400).json({ message: 'category is required' })
     }
+    if (!code) {
+        return res.status(400).json({ message: 'code is required' })
+    }
 
-    const book = await Book.create({ name, author, subject, category, notes, image, donor })
+    const book = await Book.create({ name, author, code, subject, category, notes, image, donor })
     if (book) {
         return res.status(201).json({ message: 'New book created' })
     }

@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
+import './Book.css'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
-import './Book.css';
-import { useGetBooksQuery } from "./bookApiSlice";
+import { useGetBooksQuery, useDeleteBookMutation } from './bookApiSlice';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -41,8 +41,11 @@ const categoryNames = {
     REFERENCE: "קונקורדנציה, אנציקלופדיות ומילונים"
 };
 
-const BooksList = () => {
-    const { data: books = [], isLoading } = useGetBooksQuery();
+const BooksList = ({ books, onBookClick }) => {
+    const { data: booksList, isLoading, isSuccess, isError, error } = useGetBooksQuery();
+    const[deleteBook]=useDeleteBookMutation()
+    if (isLoading) return <p>Loading...</p>;
+    if (isError) return <p>Error: {error.message}</p>;
 
     const categoryBodyTemplate = (rowData) => {
         const key = rowData.category;
@@ -62,7 +65,7 @@ const BooksList = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, "Books");
         XLSX.writeFile(workbook, "books.xlsx");
     };
-    
+
     const exportPdf = () => {
         const doc = new jsPDF();
         doc.text("Books List", 14, 16);
@@ -82,7 +85,7 @@ const BooksList = () => {
         });
         doc.save("books.pdf");
     };
-    
+
     const imageBodyTemplate = (rowData) => (
         <img src={rowData.image} alt={rowData.title} width={50} />
     );
@@ -90,12 +93,16 @@ const BooksList = () => {
     const donorBodyTemplate = (rowData) =>
         rowData.donor ? <Tag value="נתרם" severity="success" /> : null;
 
-    return <>
-        <div className="card">
-            <h2>רשימת ספרים</h2>
-            <Button label="הוספת ספר" icon="pi pi-plus" className="p-button-success" />
-            <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
-            <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
+    const handleDeleteClick=(bookItem)=>{
+        deleteBook({id:bookItem._id})
+    }
+    return (
+        <>
+            <div className="card">
+                <h2>רשימת ספרים</h2>
+                <Button label="הוספת ספר" icon="pi pi-plus" className="p-button-success" />
+                <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
+                <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
             </div>
             <DataTable value={books} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
                 <Column field="code" header="קוד ספר" filter filterPlaceholder="חפש לפי קוד" />
@@ -105,9 +112,12 @@ const BooksList = () => {
                 <Column field="subject" header="נושא" />
                 <Column field="image" header="תמונה" body={imageBodyTemplate} />
                 <Column field="donor" header="תורם" body={donorBodyTemplate} />
-                <Column Button label="עריכת ספר" icon="pi pi-pencil" className="p-button-warning" />
+                {/* <Column body={(rowData) => (<Button label="ערוך" icon="pi pi-pencil" className="p-button-warning" onClick={() => editBook(rowData)} />)} /> */}
+                <Column body={(rowData) => (<Button label="מחק" icon="pi pi-trash" className="p-button-danger" onClick={() => handleDeleteClick(book)} />)} />
             </DataTable>
-        </>
-};
 
-        export default BooksList;
+        </>
+
+    )
+}
+export default BooksList;

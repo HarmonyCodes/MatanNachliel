@@ -1,10 +1,10 @@
-import  apiSlice  from '../../app/apiSlice';
+import apiSlice from '../../app/apiSlice';
 
 const bookApiSlice = apiSlice.injectEndpoints({
     endpoints: (build) => ({
         getBooks: build.query({
             query: () => ({ url: 'Books' }),
-            //  providesTags: ['Book'],
+            providesTags: ['Books'],
         }),
         getBookById: build.query({
             query: (id) => `Books/${id}`,
@@ -14,16 +14,16 @@ const bookApiSlice = apiSlice.injectEndpoints({
             query: (name) => `Books/${name}`
         }),
         getBookByAuthor: build.query({
-            query: (author)=> `Books/${author}`
+            query: (author) => `Books/${author}`
         }),
         getBookByCode: build.query({
-            query: (code)=> `Books/${code}`
+            query: (code) => `Books/${code}`
         }),
         getBookBySubject: build.query({
-            query: (subject)=> `Books/${subject}`
+            query: (subject) => `Books/${subject}`
         }),
         getBookByCategory: build.query({
-            query: (category)=> `Books/${category}`
+            query: (category) => `Books/${category}`
         }),
         addBook: build.mutation({
             query: (newBook) => ({
@@ -31,7 +31,7 @@ const bookApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: newBook,
             }),
-            //invalidatesTags: ['Book'],
+            invalidatesTags: ['Books']
         }),
         updateBook: build.mutation({
             query: ({ id, ...updatedBook }) => ({
@@ -39,14 +39,15 @@ const bookApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: updatedBook,
             }),
-            //invalidatesTags: (result, error, { id }) => [{ type: 'Book', id }],
+            invalidatesTags: ['Books']
         }),
         deleteBook: build.mutation({
-            query: (id) => ({
-                url: `Books/${id}`,
+            query: ({ id }) => ({
+                url: `Books`,
                 method: 'DELETE',
+                body: { id: id }
             }),
-            //invalidatesTags: (result, error, id) => [{ type: 'Book', id }],
+            invalidatesTags: ['Books']
         }),
     }),
 });
