@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Book.css'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -8,6 +8,8 @@ import { useGetBooksQuery, useDeleteBookMutation } from './bookApiSlice';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import Axios from 'axios';
+import { useSelector } from 'react-redux';
 
 const categoryColors = {
     TANACH: '#4CAF50',
@@ -41,9 +43,16 @@ const categoryNames = {
     REFERENCE: "קונקורדנציה, אנציקלופדיות ומילונים"
 };
 
-const BooksList = ({ books, onBookClick }) => {
-    const { data: booksList, isLoading, isSuccess, isError, error } = useGetBooksQuery();
-    const[deleteBook]=useDeleteBookMutation()
+const BooksList = () => {
+    const {token}= useSelector((state) => state.auth);
+    const [visibleAdd, setVisibleAdd] = useState(false);
+    const [visibleUpdate, setVisibleUpdate] = useState(false);
+    const [selectedBook, setSelectedBook] = useState({});
+
+    const { data: booksList = [], isLoading, isSuccess, isError, error, refetch } = useGetBooksQuery('',
+        {}
+    );
+    const [deleteBook] = useDeleteBookMutation()
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Error: {error.message}</p>;
 
@@ -60,7 +69,7 @@ const BooksList = ({ books, onBookClick }) => {
         );
     };
     const exportExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(books);
+        const worksheet = XLSX.utils.json_to_sheet(booksList);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Books");
         XLSX.writeFile(workbook, "books.xlsx");
@@ -70,7 +79,7 @@ const BooksList = ({ books, onBookClick }) => {
         const doc = new jsPDF();
         doc.text("Books List", 14, 16);
         const tableColumn = ["קוד", "שם", "מחבר", "נושא", "קטגוריה", "תורם"];
-        const tableRows = books.map(book => [
+        const tableRows = booksList.map(book => [
             book.code,
             book.name,
             book.author,
@@ -93,8 +102,8 @@ const BooksList = ({ books, onBookClick }) => {
     const donorBodyTemplate = (rowData) =>
         rowData.donor ? <Tag value="נתרם" severity="success" /> : null;
 
-    const handleDeleteClick=(bookItem)=>{
-        deleteBook({id:bookItem._id})
+    const handleDeleteClick = (bookItem) => {
+        deleteBook({ id: bookItem._id })
     }
     return (
         <>
@@ -104,7 +113,7 @@ const BooksList = ({ books, onBookClick }) => {
                 <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
                 <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
             </div>
-            <DataTable value={books} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
+            <DataTable value={booksList} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
                 <Column field="code" header="קוד ספר" filter filterPlaceholder="חפש לפי קוד" />
                 <Column field="name" header="שם ספר" filter filterPlaceholder="חפש לפי שם ספר" />
                 <Column field="author" header="מחבר" filter filterPlaceholder="חפש לפי מחבר" />
@@ -113,9 +122,9 @@ const BooksList = ({ books, onBookClick }) => {
                 <Column field="image" header="תמונה" body={imageBodyTemplate} />
                 <Column field="donor" header="תורם" body={donorBodyTemplate} />
                 {/* <Column body={(rowData) => (<Button label="ערוך" icon="pi pi-pencil" className="p-button-warning" onClick={() => editBook(rowData)} />)} /> */}
-                <Column body={(rowData) => (<Button label="מחק" icon="pi pi-trash" className="p-button-danger" onClick={() => handleDeleteClick(book)} />)} />
+                <Column body={(rowData) => (<Button label="מחק" icon="pi pi-trash" className="p-button-danger" onClick={() => handleDeleteClick(rowData)} />)} />
             </DataTable>
-
+            <Button label="רענן" icon="pi pi-refresh" className="p-button-secondary" onClick={refetch} />
         </>
 
     )
