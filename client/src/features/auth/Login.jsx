@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useLoginMutation } from "./authApiSlice";
 import { setToken } from "./authSlice";
+import { InputText } from "primereact/inputtext";
+import { Button } from "primereact/button";
 import { useDispatch } from "react-redux";
 //import { useNavigate } from "react-router-dom";
 
@@ -48,7 +50,7 @@ const Login = () => {
                 {isError && <p className="error">{error?.data?.message || "Login failed"}</p>}
                 <div className="form-group">
                     <label htmlFor="username">Username:</label>
-                    <input
+                    <InputText
                         type="text"
                         id="username"
                         name="username"
@@ -59,7 +61,7 @@ const Login = () => {
                 </div>
                 <div className="form-group">
                     <label htmlFor="password">Password:</label>
-                    <input
+                    <InputText
                         type="password"
                         id="password"
                         name="password"
@@ -68,7 +70,7 @@ const Login = () => {
                         required
                     />
                 </div>
-                <button type="submit">Login</button>
+                <Button type="submit">Login</Button>
             </form>
         </>
     )

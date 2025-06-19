@@ -128,7 +128,8 @@ const BooksList = () => {
                 <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
                 <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
                 {isUserLoggedIn && <Button label="התנתק" icon="pi pi-sign-out" className="p-button-danger" onClick={handleLogoutClick} />}
-                {!isUserLoggedIn && <Button label="התחבר" icon="pi pi-sign-in" className="p-button-secondary" onClick={handleLoginClick} />}
+                {!isUserLoggedIn &&<Button label="Login" icon="pi pi-user" onClick={handleLoginClick} />}
+                {/* {!isUserLoggedIn && <Button label="התחבר" icon="pi pi-sign-in" className="p-button-secondary" onClick={handleLoginClick} />} */}
             </div>
             <DataTable value={booksList} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
                 <Column field="code" header="קוד ספר" filter filterPlaceholder="חפש לפי קוד" />
@@ -143,7 +144,6 @@ const BooksList = () => {
             </DataTable>
             <Button label="רענן" icon="pi pi-refresh" className="p-button-secondary" onClick={refetch} />
             <Dialog
-                header="התחברות"
                 visible={showLogin}
                 onHide={() => setShowLogin(false)}
                 style={{ width: '30vw' }}
