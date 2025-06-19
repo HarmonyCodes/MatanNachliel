@@ -14,6 +14,7 @@ app.use(express.static("public"))
 app.use("/Books", require("./routes/Books"))
 app.use("/BooksToBuy", require("./routes/BooksToBuy"))
 app.use("/Donors", require("./routes/Donors"))
+app.use("/auth", require("./routes/AuthRouter"))
 
 
 console.log(process.env.NODE_ENV)

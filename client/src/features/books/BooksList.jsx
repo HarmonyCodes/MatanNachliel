@@ -8,8 +8,12 @@ import { useGetBooksQuery, useDeleteBookMutation } from './bookApiSlice';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import Axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+// import { useNavigate } from 'react-router-dom';
+import { removeToken } from '../auth/authSlice';
+import apiSlice from '../../app/apiSlice';
+import Login from '../auth/Login';
+import { Dialog } from 'primereact/dialog';
 
 const categoryColors = {
     TANACH: '#4CAF50',
@@ -44,7 +48,18 @@ const categoryNames = {
 };
 
 const BooksList = () => {
-    const {token}= useSelector((state) => state.auth);
+    const [showLogin, setShowLogin] = useState(false);
+    const { isUserLoggedIn } = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+    //const navigate = useNavigate();
+    const handleLogoutClick = () => {
+        dispatch(removeToken());
+        dispatch(apiSlice.util.resetApiState());
+        //navigate('/');
+    };
+    const handleLoginClick = () => {
+        setShowLogin(true);
+    }
     const [visibleAdd, setVisibleAdd] = useState(false);
     const [visibleUpdate, setVisibleUpdate] = useState(false);
     const [selectedBook, setSelectedBook] = useState({});
@@ -100,7 +115,7 @@ const BooksList = () => {
     );
 
     const donorBodyTemplate = (rowData) =>
-        rowData.donor ? <Tag value="נתרם" severity="success" /> : null;
+        rowData.donor ? <Tag value={`נתרם ע"י ${rowData.donor}`} /> : null;
 
     const handleDeleteClick = (bookItem) => {
         deleteBook({ id: bookItem._id })
@@ -109,9 +124,11 @@ const BooksList = () => {
         <>
             <div className="card">
                 <h2>רשימת ספרים</h2>
-                <Button label="הוספת ספר" icon="pi pi-plus" className="p-button-success" />
+                {isUserLoggedIn && <Button label="הוספת ספר" icon="pi pi-plus" className="p-button-success" />}
                 <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
                 <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
+                {isUserLoggedIn && <Button label="התנתק" icon="pi pi-sign-out" className="p-button-danger" onClick={handleLogoutClick} />}
+                {!isUserLoggedIn && <Button label="התחבר" icon="pi pi-sign-in" className="p-button-secondary" onClick={handleLoginClick} />}
             </div>
             <DataTable value={booksList} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
                 <Column field="code" header="קוד ספר" filter filterPlaceholder="חפש לפי קוד" />
@@ -122,9 +139,18 @@ const BooksList = () => {
                 <Column field="image" header="תמונה" body={imageBodyTemplate} />
                 <Column field="donor" header="תורם" body={donorBodyTemplate} />
                 {/* <Column body={(rowData) => (<Button label="ערוך" icon="pi pi-pencil" className="p-button-warning" onClick={() => editBook(rowData)} />)} /> */}
-                <Column body={(rowData) => (<Button label="מחק" icon="pi pi-trash" className="p-button-danger" onClick={() => handleDeleteClick(rowData)} />)} />
+                {isUserLoggedIn && <Column body={(rowData) => (<Button label="מחק" icon="pi pi-trash" className="p-button-danger" onClick={() => handleDeleteClick(rowData)} />)} />}
             </DataTable>
             <Button label="רענן" icon="pi pi-refresh" className="p-button-secondary" onClick={refetch} />
+            <Dialog
+                header="התחברות"
+                visible={showLogin}
+                onHide={() => setShowLogin(false)}
+                style={{ width: '30vw' }}
+                breakpoints={{ '960px': '75vw', '641px': '100vw' }}
+            >
+                <Login />
+            </Dialog>
         </>
 
     )
