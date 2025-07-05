@@ -1,25 +1,20 @@
-const mongoose= require('mongoose')
-const donorSchema= new mongoose.Schema({
+const mongoose=require('mongoose')
+const donorScheme = new mongoose.Schema({
     name:{
         type:String,
-        required:true,
-        default: 'בעילום שם'
+        default:"בעילום שם"
     },
     email:{
         type:String,
-        required:false
     },
-    namesToRemember:{
-        type:String,
-        required:true
+    numberPhone:{
+        type:String
     },
-    phone:{
-        type:String,
-        required:true
+    commemoratesNames:{
+        type:String
     },
-    comments:{
-        type:String,
-        required:false
+    notes:{
+        type:String
     }
 })
-const Donor = mongoose.model('Donor', donorSchema)
+module.exports=mongoose.model('Donor',donorScheme)

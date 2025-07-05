@@ -1,32 +1,31 @@
-const mongoose= require('mongoose')
-const Subject= {
+const mongoose = require('mongoose')
+const Subject = {
     Donations: "תרומות",
-    Questions: "שאלות",
     Comments: "הערות",
+    Questions: "שאלות",
     Suggestions: "הצעות",
-    Other: "אחר"
+    Others: "אחר"
 };
-const massageSchema= new mongoose.Schema({
-    name:{
-        type:String,
-        required:true
+const messageSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
     },
-    subject:{
-        type:String,
+    subject: {
+        type: String,
         enum: Object.values(Subject),
-        required:true
+        required: true
     },
-    description:{
-        type:String,
-        required:true
+    detail: {
+        type: String,
+        required: true
     },
-    phone:{
-        type:String,
-        required:true
+    numberPhone: {
+        type: String,
+        required: true
     },
-    comments:{
-        type:String,
-        required:false
+    notes: {
+        type: String
     }
 })
-const Message = mongoose.model('Message', massageSchema)
+module.exports = mongoose.model('Message', messageSchema)

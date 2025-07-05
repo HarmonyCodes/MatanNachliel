@@ -21,8 +21,8 @@ const bookSchema = new mongoose.Schema({
     },
     code: {
         type: Number,
-        required: true,
-        unique: true
+        unique: true,
+        required: true
     },
     author: {
         type: String,
@@ -39,16 +39,18 @@ const bookSchema = new mongoose.Schema({
     },
     notes: {
         type: String,
-        required: false
+        required: false,
+        default: ''
     },
-    imageUrl: {
+    image: {
         type: String,
         required: false
     },
     donor: {
-        type: mongoose.ObjectId,
-        ref: 'Donor',
-        required: false
+        type: String
     }
+}, {
+    timestamps: true
 })
+
 module.exports = mongoose.model('Book', bookSchema)

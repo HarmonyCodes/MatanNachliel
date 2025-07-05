@@ -1,91 +1,64 @@
 const Message = require("../models/Message")
-const createNewMessage = async (req, res) => {
-    const { name, subject, description, phone, comments } = req.body
-    if (!name) {
-        return res.status(400).json({ message: 'name is required' })
-    }
-    if (!subject) {
-        return res.status(400).json({ message: 'subject is required' })
-    }
-    if (!description) {
-        return res.status(400).json({ message: 'description is required' })
-    }
-    if (!phone) {
-        return res.status(400).json({ message: 'phone is required' })
-    }
-
-    const message = await Message.create({ name, subject, description, phone, comments })
+const creatNewMessage = async (req, res) => {
+    const { name, subject, detail, numberPhone, notes } = req.body
+    const message = await Message.create({ name, subject, detail, numberPhone, notes })
     if (message) {
-        return res.status(201).json({ message: 'New message created' })
+        return res.status(201).json({ message: 'new message created' })
     }
-    return res.status(400).json({ message: 'Invalid message' })
+    res.status(400).json({ message: 'invalid message' })
 }
-
 const getAllMessages = async (req, res) => {
-    const messages = await Message.find().lean()
-    if (!messages?.length) {
-        return res.status(400).json({ message: 'No message found' })
-    }
-    res.json(messages)
+    const message = await Message.find().lean()
+    res.json(message)
 }
-
-const updateMessage = async (req, res) => {
-    const { _id, name, subject, description, phone, comments } = req.body
-    if (!_id && (!name || !subject || !description || !phone)) {
-        return res.status(400).json({ message: 'fields are required' })
-    }
-    const message = await Message.findById(_id).exec()
-    if (!message) {
-        return res.status(400).json({ message: 'Message not found' })
-    }
-    message.name = name
-    message.subject = subject
-    message.description = description
-    message.phone = phone
-    message.comments = comments
-    const updateMessage = await message.save()
-    res.json(`'${updateMessage.name}'update`)
-}
-
-const deleteMessage = async (req, res) => {
-    const { id } = req.params
-    if (!id) {
-        return res.status(400).json({ message: 'ID required' })
-    }
-    const message = await Message.findById(id).exec()
-    if (!message) {
-        return res.status(400).json({ message: 'Message not found' })
-    }
-    const result = await message.deleteOne()
-    res.json(`Message '${result.name}' ID '${result._id}' deleted`)
-}
-
 const getMessageById = async (req, res) => {
     const { id } = req.params
     const message = await Message.findById(id).lean()
     if (!message) {
-        return res.status(400).json({ message: 'Message not found' })
+        return res.status(400).json({ message: 'message not found' })   
     }
     res.json(message)
 }
-
-const getBySubject = async (req, res) => {
-    const { subject } = req.query
-    if (!subject) {
-        return res.status(400).json({ message: 'subject is required' })
-    }
+const getmessageBySubject = async (req, res) => {
+    const { subject } = req.params
     const message = await Message.find({ subject }).lean()
-    if (!message) {
-        return res.status(400).json({ message: 'Message not found' })
+    if (!message || message.length === 0) {
+        return res.status(400).json({ message: 'message not exists' })
     }
     res.json(message)
 }
+const updateMessage = async (req, res) => {
+    const { id, name, subject, detail, numberPhone, notes } = req.body
+    if (!id && (!name || !subject || !detail || !numberPhone || !notes)) {
+        return res.status(400).json({ message: 'fields are required' })
+    }
+    const message = await Message.findById(id).exec()
+    if (!message) {
+        return res.status(400).json({ message: 'message not found' })
+    }
+    message.name = name || message.name
+    message.subject = subject || message.subject
+    message.detail = detail || message.detail
+    message.numberPhone = numberPhone || message.numberPhone
+    message.notes = notes || message.notes
 
+    const updatedMessage = await message.save()
+    res.json(`The details of '${updatedMessage.name}' updated`)
+}
+const deleteMessage = async (req, res) => {
+    const { id } = req.params
+    const message = await Message.findById(id).exec()
+    if (!message) {
+        return res.status(400).json({ message: 'message not found' })
+    }
+    const result = await message.deleteOne()
+    res.json(`'${message.name}' deleted`)
+}
 module.exports = {
+    creatNewMessage,
     getAllMessages,
-    createNewMessage,
     getMessageById,
-    getBySubject,
+    getmessageBySubject,
     updateMessage,
     deleteMessage
 }

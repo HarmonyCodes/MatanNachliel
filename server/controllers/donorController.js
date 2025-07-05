@@ -1,86 +1,63 @@
 const Donor = require("../models/Donor")
-const createNewDonor = async (req, res) => {
-    const { name, email, namesToRemember, phone, comments } = req.body
-    if (!name) {
-        return res.status(400).json({ message: 'name is required' })
-    }
-    if (!namesToRemember) {
-        return res.status(400).json({ message: 'namesToRemember is required' })
-    }
-    if (!phone) {
-        return res.status(400).json({ message: 'phone is required' })
-    }
-
-    const donor = await Donor.create({ name, email, namesToRemember, phone, comments })
+const creatNewDonor = async (req, res) => {
+    const { name, email, numberPhone, commemoratesNames, notes } = req.body
+    const donor = await Donor.create({ name, email, numberPhone, commemoratesNames, notes })
     if (donor) {
-        return res.status(201).json({ message: 'New donor created' })
+        return res.status(201).json({ message: 'new donor created' })
     }
-    return res.status(400).json({ message: 'Invalid donor' })
-}
+    res.status(400).json({ message: 'invalid donor' })
 
+}
 const getAllDonors = async (req, res) => {
     const donors = await Donor.find().lean()
-    if (!donors?.length) {
-        return res.status(400).json({ message: 'No donor found' })
-    }
     res.json(donors)
 }
-
-const updateDonor = async (req, res) => {
-    const { _id, name, email, namesToRemember, phone, comments } = req.body
-    if (!_id && (!name || !namesToRemember || !phone)) {
-        return res.status(400).json({ message: 'fields are required' })
-    }
-    const donor = await Book.findById(_id).exec()
+const getDonorById = async (req, res) => {
+    const { id } = req.params
+    const donor = await Donor.findById(id).lean()
     if (!donor) {
-        return res.status(400).json({ message: 'Donor not found' })
+        return res.status(400).json({ message: 'donor not found' })
     }
-    donor.name = name
-    donor.email = email
-    donor.namesToRemember = namesToRemember
-    donor.phone = phone
-    donor.comments = comments
-    const updateDonor = await donor.save()
-    res.json(`'${updateDonor.name}'update`)
+    res.json(donor)
 }
-
-const deleteDonor = async (req, res) => {
-    const { id } = req.body
-    if (!id) {
-        return res.status(400).json({ message: 'ID required' })
+const getDonorByName = async (req, res) => {
+    const { name } = req.params
+    const donor = await Donor.find({ name }).lean()
+    if (!donor || donor.length === 0) {
+        return res.status(400).json({ message: 'donor not exists' })
+    }
+    res.json(donor)
+}
+const updateDonor = async (req, res) => {
+    const { id, name, email, numberPhone, commemoratesNames, notes } = req.body
+    if (!id && (!name || !email || !numberPhone || !commemoratesNames || !notes)) {
+        return res.status(400).json({ message: 'fields are required' })
     }
     const donor = await Donor.findById(id).exec()
     if (!donor) {
-        return res.status(400).json({ message: 'Donor not found' })
+        return res.status(400).json({ message: 'donor not found' })
+    }
+    donor.name = name || donor.name
+    donor.email = email || donor.email
+    donor.numberPhone = numberPhone || donor.numberPhone
+    donor.commemoratesNames = commemoratesNames || donor.commemoratesNames
+    donor.notes = notes || donor.notes
+
+    const updatedDonor = await donor.save()
+    res.json(`The details of '${updatedDonor.name}' updated`)
+}
+const deleteDonor = async (req, res) => {
+    const { id } = req.params
+    const donor = await Donor.findById(id).exec()
+    if (!donor) {
+        return res.status(400).json({ message: 'donor not found' })
     }
     const result = await donor.deleteOne()
-    res.json(`Donor '${result.name}' ID '${result._id}' deleted`)
+    res.json(`'${donor.name}' deleted`)
 }
-
-const getDonorById = async (req, res) => {
-    const { id } = req.params
-    const donor = await Book.findById(id).lean()
-    if (!donor) {
-        return res.status(400).json({ message: 'Donor not found' })
-    }
-    res.json(donor)
-}
-
-const getDonorByName = async (req, res) => {
-    const { name } = req.query
-    if (!name) {
-        return res.status(400).json({ message: 'Name required' })
-    }
-    const donor = await Book.find({ name }).lean()
-    if (!donor) {
-        return res.status(400).json({ message: 'Donor not found' })
-    }
-    res.json(donor)
-}
-
 module.exports = {
+    creatNewDonor,
     getAllDonors,
-    createNewDonor,
     getDonorById,
     getDonorByName,
     updateDonor,
