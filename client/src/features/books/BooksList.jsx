@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import './Book.css'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -7,7 +7,8 @@ import { Button } from "primereact/button";
 import { useGetBooksQuery, useDeleteBookMutation } from './bookApiSlice';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
+import '../../Alef-Regular.js'
 import { useSelector, useDispatch } from 'react-redux';
 // import { useNavigate } from 'react-router-dom';
 import { removeToken } from '../auth/authSlice';
@@ -60,11 +61,7 @@ const BooksList = () => {
     const handleLoginClick = () => {
         setShowLogin(true);
     }
-    const [visibleAdd, setVisibleAdd] = useState(false);
-    const [visibleUpdate, setVisibleUpdate] = useState(false);
-    const [selectedBook, setSelectedBook] = useState({});
-
-    const { data: booksList = [], isLoading, isSuccess, isError, error, refetch } = useGetBooksQuery('',
+    const { data: booksList = [], isLoading, isError, error, refetch } = useGetBooksQuery('',
         {}
     );
     const [deleteBook] = useDeleteBookMutation()
@@ -93,6 +90,11 @@ const BooksList = () => {
     const exportPdf = () => {
         const doc = new jsPDF();
         doc.text("Books List", 14, 16);
+        // doc.setLanguage('he');
+        // doc.setFont('Arial', 'normal');
+        doc.addFont("Alef", "normal", "normal");
+        doc.setFontSize(12);
+        doc.setFont("Alef");
         const tableColumn = ["קוד", "שם", "מחבר", "נושא", "קטגוריה", "תורם"];
         const tableRows = booksList.map(book => [
             book.code,
@@ -102,11 +104,17 @@ const BooksList = () => {
             book.category,
             book.donor ? 'כן' : 'לא'
         ]);
-        doc.autoTable({
+        // doc.autoTable({
+        //     head: [tableColumn],
+        //     body: tableRows,
+        //     startY: 20,
+        // });
+        autoTable(doc, {
             head: [tableColumn],
             body: tableRows,
             startY: 20,
         });
+
         doc.save("books.pdf");
     };
 
@@ -128,7 +136,7 @@ const BooksList = () => {
                 <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
                 <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
                 {isUserLoggedIn && <Button label="התנתק" icon="pi pi-sign-out" className="p-button-danger" onClick={handleLogoutClick} />}
-                {!isUserLoggedIn &&<Button label="Login" icon="pi pi-user" onClick={handleLoginClick} />}
+                {!isUserLoggedIn && <Button label="Login" icon="pi pi-user" onClick={handleLoginClick} />}
                 {/* {!isUserLoggedIn && <Button label="התחבר" icon="pi pi-sign-in" className="p-button-secondary" onClick={handleLoginClick} />} */}
             </div>
             <DataTable value={booksList} loading={isLoading} paginator rows={10} dataKey="id" filterDisplay="row">
